@@ -39,3 +39,6 @@ def update(request, movie_id):
         AT.update(movie_id, data)
     return redirect('/')
 
+def delete(request, movie_id):
+    AT.delete(movie_id)
+    return redirect('/')
