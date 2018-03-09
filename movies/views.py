@@ -18,14 +18,16 @@ def create(request):
     if request.method == 'POST':
         data = {
             'Name': request.POST.get('name'),
-            'Pictures': [{'url': request.POST.get('url')}],
+            'Pictures': [{'url': request.POST.get('url') or 'http://abqpride.com/wp-content/uploads/2017/01/no-image-available.png'}],
             'Rating': int(request.POST.get('rating')),
             'Notes': request.POST.get('notes')
         }
 
-        response = AT.insert(data)
-
-        messages.success(request, 'New Movie Added: {}'.format(response['fields'].get('Name')))
+        try:
+            response = AT.insert(data)
+            messages.success(request, 'New Movie Added: {}'.format(response['fields'].get('Name')))
+        except Exception as e:
+            messages.warning(request, 'Error encountered creating movie: {}'.format(e))
 
     return redirect('/')
 
@@ -33,23 +35,25 @@ def update(request, movie_id):
     if request.method == 'POST':
         data = {
             'Name': request.POST.get('name'),
-            'Pictures': [{'url': request.POST.get('url')}],
+            'Pictures': [{'url': request.POST.get('url') or 'http://abqpride.com/wp-content/uploads/2017/01/no-image-available.png'}],
             'Rating': int(request.POST.get('rating')),
             'Notes': request.POST.get('notes')
         }
 
-    response = AT.update(movie_id, data)
-
-    messages.info(request, 'Updated Movie: {}'.format(response['fields'].get('Name')))
+        try:
+            response = AT.update(movie_id, data)
+            messages.info(request, 'Updated Movie: {}'.format(response['fields'].get('Name')))
+        except Exception as e:
+            messages.warning(request, 'Error encountered updating movie: {}'.format(e))
 
     return redirect('/')
 
 def delete(request, movie_id):
-
-    name = AT.get(movie_id)['fields']['Name']
-
-    AT.delete(movie_id)
-
-    messages.error(request, 'Deleted Movie: {}'.format(name))
+    try:
+        name = AT.get(movie_id)['fields']['Name']
+        AT.delete(movie_id)
+        messages.error(request, 'Deleted Movie: {}'.format(name))
+    except Exception as e:
+        messages.warning(request, 'Error encountered deleting movie: {}'.format(e))
 
     return redirect('/')
